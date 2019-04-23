@@ -2,4 +2,7 @@
 *.pyc
 *.csv
 *.json
+*.dist
+.log
 .vscode
+node_modules
