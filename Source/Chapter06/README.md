@@ -258,4 +258,161 @@ const o2 = {
 
 <br/>
 
-### - this
+### - this 키워드
+함수를 호출하면 this는 호출한 함수를 소유하는 객체가 된다.
+```javascript
+const o = {
+    name: 'Wallace',
+    speak() {return `My name is ${this.name}`;},
+}
+
+o.speak();
+
+// -- 결과
+My name is Wallace
+```
+중첨된 함수에서 this를 사용할 경우 잘못된 객체를 참조하여 오류가 발생할 수 있다.<br/>
+다른 변수에 this를 할당하여 문제를 해결할 수 있다.
+```javascript
+const o={
+    name: 'Julie', 
+    greetBackwards: function() {
+        const self = this;  // this 를 다른 변수에 할당.
+        function getReverseName() {
+            let nameBackwards = '';
+            for(let i=self.name.length-1; i>=0; i--) {
+                nameBackwards += self.name[i];
+            }
+            return nameBackwards; 
+        }
+    
+    return `${getReverseName()} si eman ym ,olleH`; 
+    },
+};
+console.log(o.greetBackwards());
+
+// -- 결과
+eiluJ si eman ym ,olleH
+```
+
+<br/>
+
+### - :star: 함수 표현식과 익명 함수 Function Expressions and Anonymous Functions
+
+> **익명함수**란?<br/>
+> 식별자가 주어지지 않은 함수 <br/>
+> `함수 표현식`을 사용. 함수 표현식은 식별자에 할당 할 수도 있고, 즉시 호출할 수도 있다.<br/>
+> 함수 이름이 생략된 점을 제외하면 함수 선언과 문법적으로 동일하다.
+
+```javascript
+const f = function() {
+
+};
+```
+
+일반적인 함수 선언과 마찬가지로 위 예제 속 함수를 `f()`로 호출 할 수 있다.<br/>
+익명 함수와 일반적인 함수 선언과의 차이점은 함수 표현식으로 익명 함수를 만들고 함수를 변수에 할당했다는 점이다.<br/>
+<br/>
+만약 다음 예제와 같이 함수 이름을 정의하고 변수에 할당한다면 <br/>
+함수를 할당한 변수 g가 우선순위가 더 높기 때문에 f를 쓰면 오류를 발생한다.<br/>
+f로 함수 호출은 f함수 안에서 재귀호출할 때만 사용할 수 있다.
+```javascript
+const g = function f(stop) {
+    if (stop) console.log('f stopped');
+    f(true);  // 재귀 호출
+};
+g(false);
+// f(false);  // -> 오류
+
+// -- 결과
+f stopped
+```
+
+<br/>
+
+### - :star: 화살표 표기법 Arrow Notation
+
+ES6에 새로 생긴 문법이다.<br/>
+<br/>
+**특징**
+* `function` 을 생략해도 된다.
+* 함수에 매개변수가 단 하나 뿐이라면 괄호() 도 생략할 수 있디.
+* 함수 바디가 표현식 하나라면 중괄호와 `return`문도 생략할 수 있다.
+* 익명 함수이다.
+* 정적(lexically)으로 묶이기 때문에 화살표 함수를 사용할 경우 내부 함수안에서 this를 사용할 수 있다.
+* 객체 생성자로 사용할 수 없다.
+* arguments 변수로 사용할 수 없다.
+
+```javascript
+// 예1) 
+// - function 을 생략해도 된다. 
+// - 함수 바디가 표현식 하나라면 중괄호와 `return`문도 생략할 수 있다.
+const f1 = function() { return "hello"; }
+const f1 = () => "hello";
+
+// 예2)
+// - function 을 생략해도 된다. 
+// - 함수에 매개변수가 단 하나 뿐이라면 괄호() 도 생략할 수 있디.
+// - 함수 바디가 표현식 하나라면 중괄호와 `return`문도 생략할 수 있다.
+const f2 = function(name) { return `hello ${name}`; }
+const f2 = name => `hello ${name}`;
+
+// 예3)
+// - function 을 생략해도 된다. 
+// - 함수 바디가 표현식 하나라면 중괄호와 `return`문도 생략할 수 있다.
+const f3 = function(a, b) { return a + b; }
+const f3 = (a, b) => a + b;
+```
+
+<br/>
+
+### - call, apply, bind
+
+**this** 값을 다룰때 사용한다.
+
+> **call, apply**이란? <br/>
+> 함수를 호출하면서 call을 사용하고 사용할 객체를 넘기면 해당 함수가 넘어온 객체의 메서드인 것처럼 사용할 수 있다.<br/>
+> 모든 함수에서 사용 가능하다.
+> `call`은 두번째 인자에 매개변수를 직접 받지만, `apply`는 배열로 받는 차이첨이 있다.
+
+```javascript
+const bruce = {name : "Bruce"};
+
+function great(job) {
+    return `Hello, I'm ${this.name}. I'm ${job}.`;
+};
+
+console.log(great("Actor"))  
+// call
+console.log(great.call(bruce, "Actor"))
+// apply
+console.log(great.apply(bruce, ["Actor"]))
+
+// -- 결과
+Hello, I'm undefined. I'm Actor.
+Hello, I'm Bruce. I'm Actor.
+Hello, I'm Bruce. I'm Actor.
+```
+
+> **bind**란? <br/>
+> 함수의 this값을 영구적으로 바꿀 수 있다.
+
+ex) Bruce의 태어난 해는 1949년으로 고정하지만, 직업은 바꿀 수 있도록 설정. 
+```javascript
+const bruce = { name: "Bruce" };
+function update(birthYear, occupation) { 
+    this.birthYear = birthYear; 
+    this.occupation = occupation;
+}
+
+// bind
+const updateBruce1949 = update.bind(bruce, 1949); 
+updateBruce1949("singer, songwriter");
+
+console.log(bruce)
+
+// -- 결과
+{ name: 'Bruce',
+  birthYear: 1949,
+  occupation: 'singer, songwriter' }
+```
