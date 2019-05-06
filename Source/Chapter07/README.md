@@ -107,5 +107,162 @@ console.log(`outside block; x=${x}`);  // -- ReferenceError : x is not defined
 
 <br/>
 
-### - 변수 숨기기
+### - 변수 숨기기 variable masking
+
+```javascript
+{
+    // 외부
+	let x = { color: "blue" }
+	let y = x
+	let z = 3
+
+	{
+        // 내부
+		let x = 5
+		console.log(x)       // -- 결과 5
+		console.log(y.color) // -- 결과 blue
+		y.color = "red"
+		console.log(z)       // -- 결과 3
+	}
+
+	console.log(x.color)     // -- 결과 red
+	console.log(y.color)     // -- 결과 red
+	console.log(z)           // -- 결과 3
+}
+```
+* 내부블록의 x는 외부블록의 x와 이름만 같을 뿐 다른 변수이므로 외부 블록의 x를 숨기는(가리는)효과가 있다.
+* 객체 x는 y에 **x의 포인터**를 새로 할당하게 된다.<br/>
+즉, y의 객체의 값이 변경하게 되면 x의 객체 값도 변경하게 된다.
+
+<br/>
+
+### - 클로저
+
+> `클로저`란?<br/>
+> 함수가 특정 스코프에 접근할 수 있도록 의도적으로 그 스코프에 정의하는 경우.<br/>
+> 스코프를 함수 주변으로 좁히는(closing) 것이다.<br/>
+> 스코프 안에서 함수를 정의하면 해당 스코프는 더 오래 유지된다.<br/>
+> **접근할 수 없는 것에 접근할 수 있는 효과**가 있다.<br/>
+
+아래와 같이 클로저는 일반적으로 접근할 수 없었던 스코프 바깥쪽에 있는 것들에 접근할 수 있게 한다.
+```javascript
+let f;   // 정의되지 않은 함수
+{
+    let o = { note : 'safe' }  // 지역변수
+    f = function() {
+        return o;
+    }
+}
+
+let oRef = f();
+oRef.note = "Not so safe after all!";  
+```
+o는 스코프 밖이므로 소멸되는 것이 자연스럽지만, oRef에 f()를 담았기 때문에 외부함수 f 가 지역변수 o 에 접근할 수 있게 된다.<br/>
+외부함수는 외부함수의 지역변수를 사용하는 내부함수가 소멸될 때까지 소멸되지 않는다.
+
+<br/>
+
+### - 즉시 호출하는 함수 표현식 (IIFE)
+
+> `IIFE`란?<br/>
+> 함수를 선언하고 즉시 실행한다.<br/>
+> 스코프 안 선언된 변수는 스코프 안에서 안전하게 보호되며 외부에서 접근할 수 없다.<br/>
+> 함수이기때문에 무엇이든 반환 가능하다.<br/>
+> 배열, 객체, 함수를 반환하는 경우가 많다.<br/>
+
+```javascript
+const f = (function() { 
+    let count = 0; 
+    return function() {
+        return `I have been called ${++count} time(s).`; 
+    }
+})();
+
+f(); // -- 결과 "I have been called 1 time(s)." 
+f(); // -- 결과 "I have been called 2 time(s)."
+```
+
+변수 count는 IIFE안에 안전하게 보관되어 있으므로 접근할 수 있는 방법이 없다.<br/>
+
+<br/>
+
+### - 함수 스코프와 호이스팅
+
+***let***
+* `let` 으로 변수를 선언하면, 그 변수는 언언하기 전에 존재하지 않는다.
+
+***var***
+* `var` 으로 변수를 선언하면, 현재 스코프 안이라면 어디서든 사용할 수 있다.
+* 선언하기 전에 사용할 수도 있다.
+* 호이스팅(Hoisting)매커니즘을 따른다.
+* 같은 변수를 여러번 정의하더라도 무시된다.
+
+> `호이스팅(Hoisting)`매커니즘이란?<br/>
+> 함수나 전역 스코프 전체를 보고 `var`로 선언한 변수를 맨 위로 끌어올리는 방식.<br/>
+> <i>선언</i>만 끌어올려지며, <i>할당</i>은 끌어올려지지 않는다.
+
+
+```javascript
+// 원래 코드
+if(x !== 3) {
+    console.log(y); 
+    var y=5;
+
+    if(y === 5) { 
+        var x=3;
+    }
+    console.log(y);
+}
+
+if (x === 3) {
+    console.log(y);
+}
+
+// 자바스크립트가 해석한 코드
+// 선언만 끌어올려지고 할당은 끌어올려지지 않는다.
+var x;   // 선언
+var y;   // 선언
+if(x !== 3) {
+    console.log(y);
+    y=5;  // 할당
+
+    if(y === 5) { 
+        x=3;   // 할당
+    }
+    console.log(y); 
+}
+
+if(x === 3) {
+    console.log(y); 
+}
+```
+
+<br/>
+
+### - 함수 호이스팅
+
+`var`와 마찬가지로 함수 선언도 스코프 맨 위로 끌어올려진다.<br/>
+따라서 함수를 선언하기 전에 호출할 수 있다.<br/>
+단, 변수에 할당한 함수 표현식은 끌어올려지지 않는다.(스코프 규칙을 그대로 따름)
+
+```javascript
+f();   // 함수 선언하기 전에 호출
+function f() {
+    console.log("f");
+}
+
+// 변수에 할당된 함수 표현식
+d();    // ReferrenceError : d 는 정의되지 않았습니다.
+let d = function() {
+    console.log("d");
+}
+```
+
+<br/>
+
+### - 사각지대
+
+
+
+
 
