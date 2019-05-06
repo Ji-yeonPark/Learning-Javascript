@@ -9,10 +9,8 @@ module.exports = {
         "sourceType": "module"
     },
     "rules": {
-        "indent": [
-            "error",
-            "tab"
-        ],
+        'no-console': 'off',
+        "indent": 'off',
         "linebreak-style": [
             "error",
             "unix"
@@ -21,9 +19,6 @@ module.exports = {
             "error",
             "double"
         ],
-        "semi": [
-            "error",
-            "never"
-        ]
+        "semi": 'off'
     }
 };
