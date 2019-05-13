@@ -193,3 +193,181 @@ arr.sort((a, b) => a.name > b.name); // arr이 name프로퍼티의 알파벳 순
 
 ### - 배열 검색
 
+**indexOf**
+- 찾고자 하는 값과 **정확히 일치(===)하는 첫 번째 요소의 인덱스** 반환
+- **lastIndexOf**는 배열 **끝**부터 검색
+- 일치하지 않으면 **-1**반환
+- 시작 인덱스를 지정하여 배열의 일부분만 검색 가능
+- 대소문자 구분함.
+> str.lastIndexOf(searchValue[, fromIndex])
+
+
+```javascript
+const o = { name: "Jerry" };
+const arr = [1, 5, "a", o, true, 5, [1, 2], "9"];
+
+arr.indexOf(5);                  // 결과 - 1
+arr.lastIndexOf(5);              // 결과 - 5
+arr.indexOf("a");                // 결과 - 2
+arr.lastIndexOf("a");            // 결과 - 2
+arr.indexOf({ name: "Jerry" });  // 결과 - -1
+arr.indexOf(o);                  // 결과 - 3
+arr.indexOf([1, 2]);             // 결과 - -1
+arr.indexOf("9");                // 결과 - 7
+arr.indexOf(9);                  // 결과 - -1
+
+// 검색 시작 위치 입력
+arr.indexOf("a", 5);             // 결과 - -1
+arr.indexOf(5, 5);               // 결과 - 5
+arr.lastIndexOf(5, 4);           // 결과 - 1
+arr.lastIndexOf(true, 3);        // 결과 - -1
+```
+
+**findIndex**
+- **보조 함수**를 써서 검색 조건 지정 가능.
+- 일치하지 않으면 **-1**반환
+- 검색 시작 인덱스 지정 불가능.
+
+```javascript
+const arr = [{ id: 5, name: "Judith" }, { id: 7, name: "Francis" }];
+arr.findIndex(o => o.id === 5);            // 결과 - 0
+arr.findIndex(o => o.name === "Francis");  // 결과 - 1
+arr.findIndex(o => o === 3);               // 결과 - -1
+arr.findIndex(o => o.id === 17);           // 결과 - -1
+```
+
+**find**
+- 조건에 맞는 요소의 인덱스가 아닌 **요소 자체**를 반환
+- 검섹 조건을 함수로 전달 가능.
+- 일치하지 않으면 **undefined**반환
+  - 첫 번째 요소 : 배열의 각 요소
+  - 두 번째 요소 : 현재 요소의 인덱스
+  - 세 번째 요소 : 배열 자체
+> arr.find(callback[, thisArg])
+
+```javascript
+const arr = [{ id: 5, name: "Judith" }, { id: 7, name: "Francis" }]; 
+arr.find(o => o.id === 5); // 결과 - object { id: 5, name: "Judith" } 
+arr.find(o => o.id === 2); // 결과 - undefined
+
+// 특정 인덱스보다 뒤에 있는 제곱수 찾기
+const arr = [1, 17, 16, 5, 4, 16, 10, 3, 49];
+arr.find((x, i) => i > 2 && Number.isInteger(Math.sqrt(x)));  // 결과 - 4
+```
+
+**some**
+- **조건에 맞는 요소**를 찾으면 즉시 검색을 멈추고 **true** 반환
+- 찾지 못하면 false 반환
+
+```javascript
+const arr = [5, 7, 12, 15, 17];
+arr.some(x => x%2===0); // 결과 - true; 12 는 짝수이다.
+arr.some(x => Number.isInteger(Math.sqrt(x)));  // 결과 - false; 제곱수가 없다
+```
+
+**every**
+- 배열의 **모든 요소**가 조건에 맞아야 **true** 반환.
+- 그렇지 않으면 false 반환
+
+```javascript
+const arr = [4, 6, 16, 36];
+arr.every(x => x%2===0); // 결과 - true; 홀수가 없다.
+arr.every(x => Number.isInteger(Math.sqrt(x)));  // 결과 - false; 6은 제곱수가 아니다.
+```
+
+<br/>
+
+### - map과 filter ###
+
+**map**
+- **배열 요소 변형**
+- 사본을 반환하며, 원래 배열은 바뀌지 않는다.
+> arr.map(callback(currentValue[, index[, array]])[, thisArg])<br/>
+>  * currentValue : 처리할 현재 요소.<br/>
+>  * index Optional : 처리할 현재 요소의 인덱스.<br/>
+>  * array Optional : map()을 호출한 배열.
+
+```javascript
+const cart = [ { name: "Widget", price: 9.95 }, { name: "Gadget", price: 22.95 } ];
+const names = cart.map(x => x.name);             // ["Widget", "Gadget"]
+const prices = cart.map(x => x.price);           // [9.95, 22.95]
+const discountPrices = prices.map(x => x * 0.9); // [7.96, 18.36]
+```
+- 두 배열의 요소를 인덱스에 따라 결한 가능함.
+```javascript
+const items = ["Widget", "Gadget"];
+const prices = [9.95, 22.95];
+const cart = items.map((x, i) => ({ name: x, price: prices[i] }));
+// cart: [{ name: "Widget", price: 9.95 }, { name: "Gadget", price: 22.95 }]
+```
+
+**filter**
+- **배열에 필요한 것들만 남길 목적**
+- 사본을 반환하며, 원래 배열은 바뀌지 않는다.
+- 새 배열에는 필요한 요소만 남는다.
+
+```javascript
+// 카드 덱을 만든다.
+const cards = [];
+for (let suit of ['H', 'C', 'D', 'S']) // 하트, 클로버, 다이아몬드, 스페이드
+    for (let value=1; value<=13; value++)
+        cards.push({ suit, value });
+        
+// value가 2인 카드
+cards.filter(c => c.value === 2);
+// [ 
+//     { suit: 'H', value: 2}, 
+//     { suit: 'C', value: 2}, 
+//     { suit: 'D', value: 2}, 
+//     { suit: 'S', value: 2}, 
+// ]
+
+// 여기서부터는 지면을 생각해서 반환된 배열의 길이만 적음.
+
+// 다이아몬드
+cards.filter(c => c.suit === 'D');  // length: 13
+// 킹, 퀸 주니어
+cards.filter(c => c.value > 10);    // length: 12
+```
+
+<br/>
+
+### - reduce ###
+
+- **배열 자체를 변형**
+- 첫 번째 매개변수 : 배열이 줄어드는 대상인 어큐뮬레이터(accumulator: 누적값, 전 단계의 결과)
+- 두 번째 매개변수부터 현재 배열 요소, 현재 인덱스, 배열 자체 순으로 받는다.
+
+```javascript
+const arr = [ 5, 7, 2, 4 ];
+const sum = arr.reduce((a, x) => a += x);
+
+1. 두 번째 배열 요소 7에서 함수가 호출된다.
+a의 초기값은 첫 번째 배열요소인 5이고, x의 값은 7이다.
+함수는 a와 x의 합인 12를 반환하고, 이 값이 다음 단계에서 a의 값이 된다.
+
+2. 세 번째 배열 요소인 2에서 함수를 호출한다.
+a의 초기값은 12이고, x의 값은 2이다.
+함수는 a와 x의 합인 14를 반환한다.
+
+3. 네 번째이자 마지막 배열 요소인 4에서 함수를 호출한다.
+a는 14이고, x는 4이다.
+함수는 a와 x의 합인 18을 반환하며 이 값은 reduce의 값이고, sum에 할당되는 값이다.
+```
+
+<br/>
+
+### - 문자열 병합 ###
+
+**join**
+- `Array.prototype.join`의 매개변수는 **구분자** 하나를 받고 요소들을 하나로 합친 문자열을 반환한다.
+- 매개 변수 생략시 **, 쉼표**로 구분된다.
+- 문자열 요소를 합칠 때 **정의되지 않은 요소, 삭제된 요소, null, undefined는 모두 빈 문자열로 취급**한다.
+
+```javascript
+onst arr = [1, null, "hello", "world", true, undefined];
+delete arr[3];    // 3번째 요소 world 삭제된다.
+arr.join();       // 결과 - "1,,hello,,true";
+arr.join('');     // 결과 - "1hellotrue"
+arr.join(' -- '); // 결과 - "1 -- -- hello -- -- true -- "
+```
